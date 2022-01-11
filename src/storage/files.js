@@ -75,7 +75,7 @@ class FilesStorage {
   }
 
   reviewStreams() {
-    const now = +new Date()
+    const now = Date.now()
 
     for (let id in this.writableStreams) {
       // close 1 min after file expiration (timestamp + fileInterval)
@@ -107,7 +107,7 @@ class FilesStorage {
   }
 
   save(trades) {
-    const now = +new Date()
+    const now = Date.now()
 
     const groups = groupTrades(trades, false, true)
 

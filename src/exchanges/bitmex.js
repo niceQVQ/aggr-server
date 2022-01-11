@@ -126,7 +126,7 @@ class Bitmex extends Exchange {
             return {
               exchange: this.id,
               pair: trade.symbol,
-              timestamp: +new Date(),
+              timestamp: Date.now(),
               price: trade.price,
               size: size,
               side: trade.side === 'Buy' ? 'buy' : 'sell',

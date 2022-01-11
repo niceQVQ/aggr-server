@@ -71,7 +71,7 @@ class Server extends EventEmitter {
       this.connectExchanges()
 
       // profile exchanges connections (keep alive)
-      this._activityMonitoringInterval = setInterval(this.monitorExchangesActivity.bind(this, +new Date()), this.options.monitorInterval)
+      this._activityMonitoringInterval = setInterval(this.monitorExchangesActivity.bind(this, Date.now()), this.options.monitorInterval)
     }
 
     this.initStorages().then(() => {
@@ -184,7 +184,7 @@ class Server extends EventEmitter {
     }
 
     const now = new Date()
-    let delay = Math.ceil(now / this.options.backupInterval) * this.options.backupInterval - now - 20
+    let delay = Math.ceil(now / this.options.backupInterval) * this.options.backupInterval - now
 
     if (delay < 1000) {
       delay += this.options.backupInterval
@@ -263,7 +263,7 @@ class Server extends EventEmitter {
 
         console.log(`[server] registered connection ${id} (${apiLength})`)
 
-        const now = +new Date()
+        const now = Date.now()
 
         this.connections[id] = {
           apiId,
@@ -314,10 +314,6 @@ class Server extends EventEmitter {
   }
 
   createWSServer() {
-    if (!this.options.broadcast) {
-      return
-    }
-
     this.wss = new WebSocket.Server({
       server: this.server,
     })
@@ -328,7 +324,6 @@ class Server extends EventEmitter {
 
     this.wss.on('connection', (ws, req) => {
       const ip = getIp(req)
-      const pairs = parsePairsFromWsRequest(req)
 
       if (pairs && pairs.length) {
         ws.pairs = pairs
@@ -338,8 +333,8 @@ class Server extends EventEmitter {
 
       const data = {
         type: 'welcome',
-        supportedPairs: Object.values(this.connections).map((a) => a.exchange + ':' + a.pair),
-        timestamp: +new Date(),
+        supportedPairs: Object.values(this.connection).map((a) => a.exchange + ':' + a.pair),
+        timestamp: Date.now(),
         exchanges: this.exchanges.map((exchange) => {
           return {
             id: exchange.id,
@@ -521,7 +516,7 @@ class Server extends EventEmitter {
         })
       }
 
-      const fetchStartAt = +new Date()
+      const fetchStartAt = Date.now()
 
       ;(storage
         ? storage.fetch({
@@ -543,7 +538,7 @@ class Server extends EventEmitter {
             console.log(
               `[${ip}/${req.get('origin')}] ${getHms(to - from)} (${markets.length} markets, ${getHms(timeframe, true)} tf) -> ${
                 +length ? parseInt(length) + ' bars into ' : ''
-              }${output.length} ${storage.format}s, took ${getHms(+new Date() - fetchStartAt)}`
+              }${output.length} ${storage.format}s, took ${getHms(Date.now() - fetchStartAt)}`
             )
           }
 
@@ -900,7 +895,7 @@ class Server extends EventEmitter {
   }
 
   dispatchRawTrades(exchange, { source, data }) {
-    const now = +new Date()
+    const now = Date.now()
 
     for (let i = 0; i < data.length; i++) {
       const trade = data[i]
@@ -931,7 +926,7 @@ class Server extends EventEmitter {
   }
 
   dispatchAggregateTrade(exchange, { source, data }) {
-    const now = +new Date()
+    const now = Date.now()
     const length = data.length
 
     for (let i = 0; i < length; i++) {
@@ -973,7 +968,7 @@ class Server extends EventEmitter {
   }
 
   broadcastAggregatedTrades() {
-    const now = +new Date()
+    const now = Date.now()
 
     const onGoingAggregation = Object.keys(this.aggregating)
 

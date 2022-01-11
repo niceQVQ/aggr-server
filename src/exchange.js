@@ -243,6 +243,11 @@ class Exchange extends EventEmitter {
     }
 
     api.onclose = async (event) => {
+      if (this.lastMessages.length) {
+        console.debug(`[${this.id}] last ${this.lastMessages.length} messages`)
+        console.debug(this.lastMessages)
+      }
+
       if (this.clearReconnectionDelayTimeout[url]) {
         clearTimeout(this.clearReconnectionDelayTimeout[url])
         delete this.clearReconnectionDelayTimeout[url]
@@ -915,7 +920,7 @@ class Exchange extends EventEmitter {
   async saveProducts(data) {
     const path = 'products/' + this.id + '.json'
     const storage = {
-      expiration: +new Date() + 1000 * 60 * 60 * 24 * 2, // 7 days
+      expiration: Date.now() + 1000 * 60 * 60 * 24 * 2, // 7 days
       data,
     }
 

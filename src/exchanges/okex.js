@@ -90,7 +90,7 @@ class Okex extends Exchange {
 
     if (type !== 'spot') {
       this.liquidationProducts.push(pair)
-      this.liquidationProductsReferences[pair] = +new Date()
+      this.liquidationProductsReferences[pair] = Date.now()
 
       if (this.liquidationProducts.length === 1) {
         this.startLiquidationTimer()
